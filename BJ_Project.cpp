@@ -49,6 +49,22 @@ card drawcard(){
     return c;
 }
 
+int calculateScore(const vector<card> &hand){
+    int score = 0;
+    int aceCount = 0;
+    for(const auto &c : hand){
+        score += c.value;
+        if(c.rank == "A" || c.rank == "A(amazing)") aceCount++;
+
+    }
+    while(score > 21 && aceCount > 0){
+        score -= 10;
+        aceCount --;
+    }
+    return score;
+}
+
+
 void useItemUndo(){
     if(!PlayerHand.empty()){
     PlayerHand.pop_back();
