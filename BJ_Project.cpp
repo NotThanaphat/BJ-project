@@ -71,8 +71,96 @@ void useItemUndo(){
     cout << "Deleted last card! Drawin a new one..." << endl;
     }
 }
+void showHand(string name, const vector<card> &hand, bool hideFirstCard = false){
+    cout << name << " 's Hand: ";
+    if(hideFirstCard){
+        cout << "[HIDDEN] ";
+        for(int i = 1; i < hand.size(); i++) cout << "[" << hand[i].rank << "-" << hand[i].suit << "] ";
+         
+    }else{
+        for(const auto &c : hand) cout << "[" << c.rank << "-" << c.suit << "] ";
+
+    }if(!hideFirstCard) cout << " (Score : " << calculateScore(hand) << ")";
+    cout << endl;
+
+}
 
 int main(){
 
-    
+    srand(time(0));
+    char playAgain = 'y';
+    while(playAgain == 'y'){
+        creatDeck ();
+        shuffleDeck ();
+        PlayerHand.clear ();
+        DealerHand.clear ();
+
+        PlayerHand.push_back(drawcard());
+        DealerHand.push_back(drawcard());
+        PlayerHand.push_back(drawcard());
+        DealerHand.push_back(drawcard());
+
+        bool playerTurn = true;
+
+        while(playerTurn){
+            cout << "\n------------------------------\n";
+            showHand("Dealer", DealerHand , true );
+            showbase("Player", PlayerHand , false);
+
+            if(calculateScore(PlayerHand) > 21){
+                cout << "You Busted (score > 21) \n";
+                playerTurn = false;
+                break;
+            }
+
+            cout << "Action: [1] Hit [2] Stand \n";
+            cout << "Select: ";
+            int action;
+            cin >> action;
+
+            if(action == 1){
+                cout << "You Hit...\n";
+                PlayerHand.push_back(drawcard());
+            }else{
+                cout << "You Stand.\n";
+                playerTurn = false;
+            }
+        }
+        
+        int PlayerScore = calculateScore(PlayerHand);
+        int DealerScore = calculateScore(DealerHand);
+
+        if(PlayerScore <= 21){
+            cout << "\n-----Dealer's Turn -----\n";
+            showHand("Dealer", DealerHand , false);
+
+            while (DealerHand < 17){
+                cout << "Dealer Hit...\n";
+                DealerHand.push_back(drawcard());
+                DealerScore = calculateScore(DealerHand);
+                showHand("Dealer", DealerHand , false);
+
+            }
+        }
+
+        cout << "\n===============RESULT===============\n";
+        cout << "Player Score = " << PlayerScore << endl;
+        cout << "Dealer Score = " << DealerScore << endl;
+
+        if(PlayerScore > 21){
+            cout << "Result: You Loss! (Busted)\n";
+        }else if(DealerScore > 21){
+            cout << "Result: You Win! (Dealer Busted)\n";
+        }else if(PlayerScore > DealerScore){
+            cout << "Result: You win!\n";
+        }else if(DealerScore > PlayerScore){
+            cout << "Result: You Loss!]n"
+        }else {
+            cout << "Result: Draw!";
+        }
+
+        cout << "\nPlay Again? (y/n): ";
+        cin >> playAgain
+    }   
+    return 0;
 }
