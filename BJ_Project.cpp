@@ -26,11 +26,11 @@ void creatDeck(){
     int values[] = {2,3,4,5,6,7,8,9,10,10,10,10,11};
     
     deck.clear();
-    for(const &s : suits){
+    for(const string &s : suits){
         for(int i = 0; i < 13; i++){
             card c;
             c.suit = s;
-            c.rank = rank[i];
+            c.rank = ranks[i];
             c.value= values[i];
             deck.push_back(c);
 
@@ -71,7 +71,7 @@ void useItemUndo(){
     cout << "Deleted last card! Drawin a new one..." << endl;
     }
 }
-void showHand(string name, const vector<card> &hand, bool hideFirstCard = false){
+void displayHand(string name, const vector<card> &hand, bool hideFirstCard = false){
     cout << name << " 's Hand: ";
     if(hideFirstCard){
         cout << "[HIDDEN] ";
@@ -104,8 +104,8 @@ int main(){
 
         while(playerTurn){
             cout << "\n------------------------------\n";
-            showHand("Dealer", DealerHand , true );
-            showbase("Player", PlayerHand , false);
+            displayHand("Dealer", DealerHand , true );
+            displayHand("Player", PlayerHand , false);
 
             if(calculateScore(PlayerHand) > 21){
                 cout << "You Busted (score > 21) \n";
@@ -132,13 +132,13 @@ int main(){
 
         if(PlayerScore <= 21){
             cout << "\n-----Dealer's Turn -----\n";
-            showHand("Dealer", DealerHand , false);
+            displayHand("Dealer", DealerHand , false);
 
-            while (DealerHand < 17){
+            while (calculateScore(DealerHand) < 17){
                 cout << "Dealer Hit...\n";
                 DealerHand.push_back(drawcard());
                 DealerScore = calculateScore(DealerHand);
-                showHand("Dealer", DealerHand , false);
+                displayHand("Dealer", DealerHand , false);
 
             }
         }
@@ -154,13 +154,13 @@ int main(){
         }else if(PlayerScore > DealerScore){
             cout << "Result: You win!\n";
         }else if(DealerScore > PlayerScore){
-            cout << "Result: You Loss!]n"
+            cout << "Result: You Loss!]n";
         }else {
             cout << "Result: Draw!";
         }
 
         cout << "\nPlay Again? (y/n): ";
-        cin >> playAgain
+        cin >> playAgain;
     }   
     return 0;
 }
