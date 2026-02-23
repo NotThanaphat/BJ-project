@@ -2,6 +2,9 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <ctime>
+#include <cstdlib>
+
 using namespace std;
 
 struct card{
@@ -24,7 +27,7 @@ vector<PhysicalQuestion> Question;
 
 void creatDeck(){
     string suits[] = {"clubs" , "diamons" , "hearts" , "spades"};
-    string ranks[] = {"2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" , "10" , "10" , "10" , "11"};
+    string ranks[] = {"2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" , "10" , "10" , "10" , "A"};
     int values[] = {2,3,4,5,6,7,8,9,10,10,10,10,11};
     
     deck.clear();
@@ -128,7 +131,7 @@ void displayHand(string name, const vector<card> &hand, bool hideFirstCard = fal
 int main(){
 
     srand(time(0));
-
+    solveQuestion();
     doPhysicQuestion();
 
     char playAgain = 'y';
@@ -171,13 +174,12 @@ int main(){
                 playerTurn = false;
             }
             else if(action == 3){
-                if(itemUsed == true){
+                if(itemUsed == false){
                     cout << "[SYSTEM] MAGIC WORK\n";
                     PlayerHand.pop_back();
                     itemUsed = true;
                 }else{
                     cout << "[SYSTRM] MAGIC FAIL\n";
-                    itemUsed = true;
                 }
             }
             
@@ -210,7 +212,7 @@ int main(){
         }else if(PlayerScore > DealerScore){
             cout << "Result: You win!\n";
         }else if(DealerScore > PlayerScore){
-            cout << "Result: You Loss!]n";
+            cout << "Result: You Loss!\n";
         }else {
             cout << "Result: Draw!";
         }
@@ -218,6 +220,7 @@ int main(){
         cout << "\nPlay Again? (y/n): ";
         cin >> playAgain;
     } 
-      
+    
+    
     return 0;
 }
