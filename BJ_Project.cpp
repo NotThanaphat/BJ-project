@@ -20,6 +20,8 @@ vector<card> deck;
 vector<card> PlayerHand;
 vector<card> DealerHand;
 
+vector<PlysicalQuestion> Question;
+
 void creatDeck(){
     string suits[] = {"clubs" , "diamons" , "hearts" , "spades"};
     string ranks[] = {"2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" , "10" , "10" , "10" , "11"};
@@ -64,6 +66,21 @@ int calculateScore(const vector<card> &hand){
     return score;
 }
 
+void solveQuestion(){
+    Question.push_back({"วัตถุมวล 5 กิโลกรัม วางอยู่บนพื้นลื่น มีแรงขนาด 20 นิวตัน มากระทำในแนวราบ วัตถุจะเคลื่อนที่ด้วยความเร่งเท่าใด", 4});
+    Question.push_back({"ถ้าต้องการให้วัตถุมวล 10 กิโลกรัม เคลื่อนที่ด้วยความเร่ง 3 $m/s^2$ จะต้องใช้แรงขนาดกี่นิวตัน", 30});
+    Question.push_back({"วัตถุชิ้นหนึ่งถูกแรง 50 นิวตัน กระทำแล้วเกิดความเร่ง 5 $m/s^2$ วัตถุนี้มีมวลกี่กิโลกรัม"}, 10);
+    Question.push_back({"แรงสองแรงขนาด 10 นิวตัน และ 15 นิวตัน กระทำต่อวัตถุในทิศทางเดียวกัน แรงลัพธ์มีขนาดกี่นิวตัน"}, 25);
+    Question.push_back({"แรงขนาด 12 นิวตัน และ 8 นิวตัน กระทำต่อวัตถุในทิศทางตรงข้ามกัน แรงลัพธ์จะมีขนาดกี่นิวตัน", 4});
+    Question.push_back({"น้ำหนักของวัตถุมวล 2 กิโลกรัม บนผิวโลกมีค่าประมาณกี่นิวตัน (กำหนดให้ g = 9.8 m/s^2$)"}, 19.6);
+    Question.push_back({"วัตถุมวล 4 กิโลกรัม เคลื่อนที่ด้วยความเร็วคงที่ 10 เมตรต่อวินาที แรงลัพธ์ที่กระทำต่อวัตถุนี้มีค่ากี่นิวตัน", 0});
+    Question.push_back({"ออกแรงผลักกล่องขนาด 100 นิวตัน แต่กล่องยังคงอยู่นิ่ง แรงเสียดทานสถิตที่เกิดขึ้นในขณะนั้นมีขนาดกี่นิวตัน"}, 0);
+    Question.push_back({"แขวนวัตถุมวล 3 กิโลกรัม ไว้กับเพดานด้วยเชือก แรงดึงในเส้นเชือก(T)มีค่ากี่นิวตัน (กำหนดให้ g = 10 m/s^2)", 30});
+    Question.push_back({"วัตถุมวล 5 kg ตกแบบเสรี (Free fall) แรงลัพธ์ที่กระทำต่อวัตถุขณะกำลังตกมีค่ากี่นิวตัน (กำหนด g = 10 m/s^2$)", 50});
+}
+
+int
+
 
 void useItemUndo(){
     if(!PlayerHand.empty()){
@@ -71,6 +88,7 @@ void useItemUndo(){
     cout << "Deleted last card! Drawin a new one..." << endl;
     }
 }
+
 void displayHand(string name, const vector<card> &hand, bool hideFirstCard = false){
     cout << name << " 's Hand: ";
     if(hideFirstCard){
