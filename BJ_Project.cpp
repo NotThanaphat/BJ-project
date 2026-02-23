@@ -79,7 +79,10 @@ void solveQuestion(){
     Question.push_back({"วัตถุมวล 5 kg ตกแบบเสรี (Free fall) แรงลัพธ์ที่กระทำต่อวัตถุขณะกำลังตกมีค่ากี่นิวตัน (กำหนด g = 10 m/s^2$)", 50});
 }
 
-int
+int (){
+
+    
+}
 
 
 void useItemUndo(){
