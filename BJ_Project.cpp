@@ -10,7 +10,7 @@ struct card{
     int value;
 };
 
-struct PlysicalQuestion{
+struct PhysicalQuestion{
     string question;
     float correctAnswer;
 
@@ -20,7 +20,7 @@ vector<card> deck;
 vector<card> PlayerHand;
 vector<card> DealerHand;
 
-vector<PlysicalQuestion> Question;
+vector<PhysicalQuestion> Question;
 
 void creatDeck(){
     string suits[] = {"clubs" , "diamons" , "hearts" , "spades"};
@@ -79,7 +79,20 @@ void solveQuestion(){
     Question.push_back({"วัตถุมวล 5 kg ตกแบบเสรี (Free fall) แรงลัพธ์ที่กระทำต่อวัตถุขณะกำลังตกมีค่ากี่นิวตัน (กำหนด g = 10 m/s^2$)", 50});
 }
 
-int (){
+bool doPhysicQuestion(){
+    int idx = rand() % Question.size();
+    cout << "\n[PHYSIC CHALLANGE] Answer correctly to use the Item!!!" << endl;
+    cout << "Question: " << Question[idx].text << endl;
+    cout << "Your answer: " ;
+    float ans;
+    cin >> ans;
+
+    if(abs(ans - Question[idx].correctAnswer) < 0.1 ) {
+        cout << "Correct! Item Activated.\n";
+    }else{
+        cout << "Wrong! Item Failed.\n";
+    }
+}
 
     
 }
