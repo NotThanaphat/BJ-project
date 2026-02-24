@@ -5,7 +5,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <random>
-
+#include <windows.h>
 
 using namespace std;
 
@@ -133,8 +133,7 @@ void displayHand(string name, const vector<card> &hand, bool hideFirstCard = fal
 int main(){
 
     srand(time(0));
-    solveQuestion();
-    doPhysicQuestion();
+
 
     char playAgain = 'y';
     while(playAgain == 'y'){
@@ -174,19 +173,39 @@ int main(){
             }else if(action == 2){
                 cout << "You Stand.\n";
                 playerTurn = false;
-            }
-            else if(action == 3){
+            }else if(action == 3){
                 if(itemUsed == false){
-                    cout << "[SYSTEM] MAGIC WORK\n";
-                    PlayerHand.pop_back();
-                    itemUsed = true;
+                    // ดึงโจทย์ฟิสิกส์มาถาม
+                    if(doPhysicQuestion()){
+                        // ถ้าตอบถูก จะขึ้นเมนูไอเทม
+                        cout << "\n[ITEM MENU]\n";
+                        cout << "[1] Peek (ดูไพ่ใบแรกที่ซ่อนอยู่ของ Dealer)\n";
+                        cout << "[2] Undo (ลบไพ่ใบล่าสุดในมือตัวเอง)\n";
+                        cout << "Select Item to use: ";
+                        int itemChoice;
+                        cin >> itemChoice;
+
+                        if(itemChoice == 1){
+                            cout << ">> ACTIVATED: The Dealer's hidden card is [" << DealerHand[0].rank << "-" << DealerHand[0].suit << "]\n";
+                        } else if(itemChoice == 2){
+                            if(!PlayerHand.empty()){
+                                PlayerHand.pop_back();
+                                cout << ">> ACTIVATED: Deleted your last card!\n";
+                            }
+                        } else {
+                            cout << ">> Invalid choice. Item wasted!\n";
+                        }
+                        itemUsed = true; 
+                    } else {
+                        itemUsed = true; 
+                    }
                 }else{
-                    cout << "[SYSTRM] MAGIC FAIL\n";
+                    cout << "[SYSTEM] You already used your item this round!\n";
                 }
             }
-            
         }
-        
+
+
         int PlayerScore = calculateScore(PlayerHand);
         int DealerScore = calculateScore(DealerHand);
 
