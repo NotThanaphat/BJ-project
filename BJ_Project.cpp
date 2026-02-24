@@ -29,7 +29,7 @@ vector<PhysicalQuestion> Question;
 
 void creatDeck(){
     string suits[] = {"clubs" , "diamons" , "hearts" , "spades"};
-    string ranks[] = {"2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" , "10" , "10" , "10" , "A"};
+    string ranks[] = {"2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" , "J" , "Q" , "K" , "A"};
     int values[] = {2,3,4,5,6,7,8,9,10,10,10,10,11};
     
     deck.clear();
@@ -72,16 +72,16 @@ int calculateScore(const vector<card> &hand){
 }
 
 void solveQuestion(){
-    Question.push_back({"วัตถุมวล 5 กิโลกรัม วางอยู่บนพื้นลื่น มีแรงขนาด 20 นิวตัน มากระทำในแนวราบ วัตถุจะเคลื่อนที่ด้วยความเร่งเท่าใด", 4});
-    Question.push_back({"ถ้าต้องการให้วัตถุมวล 10 กิโลกรัม เคลื่อนที่ด้วยความเร่ง 3 $m/s^2$ จะต้องใช้แรงขนาดกี่นิวตัน", 30});
-    Question.push_back({"วัตถุชิ้นหนึ่งถูกแรง 50 นิวตัน กระทำแล้วเกิดความเร่ง 5 $m/s^2$ วัตถุนี้มีมวลกี่กิโลกรัม", 10});
-    Question.push_back({"แรงสองแรงขนาด 10 นิวตัน และ 15 นิวตัน กระทำต่อวัตถุในทิศทางเดียวกัน แรงลัพธ์มีขนาดกี่นิวตัน", 25});
-    Question.push_back({"แรงขนาด 12 นิวตัน และ 8 นิวตัน กระทำต่อวัตถุในทิศทางตรงข้ามกัน แรงลัพธ์จะมีขนาดกี่นิวตัน", 4});
-    Question.push_back({"น้ำหนักของวัตถุมวล 2 กิโลกรัม บนผิวโลกมีค่าประมาณกี่นิวตัน (กำหนดให้ g = 9.8 m/s^2$)", 19.6});
-    Question.push_back({"วัตถุมวล 4 กิโลกรัม เคลื่อนที่ด้วยความเร็วคงที่ 10 เมตรต่อวินาที แรงลัพธ์ที่กระทำต่อวัตถุนี้มีค่ากี่นิวตัน", 0});
-    Question.push_back({"ออกแรงผลักกล่องขนาด 100 นิวตัน แต่กล่องยังคงอยู่นิ่ง แรงเสียดทานสถิตที่เกิดขึ้นในขณะนั้นมีขนาดกี่นิวตัน", 0});
-    Question.push_back({"แขวนวัตถุมวล 3 กิโลกรัม ไว้กับเพดานด้วยเชือก แรงดึงในเส้นเชือก(T)มีค่ากี่นิวตัน (กำหนดให้ g = 10 m/s^2)", 30});
-    Question.push_back({"วัตถุมวล 5 kg ตกแบบเสรี (Free fall) แรงลัพธ์ที่กระทำต่อวัตถุขณะกำลังตกมีค่ากี่นิวตัน (กำหนด g = 10 m/s^2$)", 50});
+    Question.push_back({"F = ma | If m = 5 kg, F = 20 N, what is a (m/s^2)?", 4});
+    Question.push_back({"F = ma | If m = 10 kg, a = 3 m/s^2, what is F (N)?", 30});
+    Question.push_back({"F = ma | If F = 50 N, a = 5 m/s^2, what is m (kg)?", 10});
+    Question.push_back({"ΣF = F1 + F2 | If F1 = 10 N, F2 = 15 N (same direction), what is ΣF (N)?", 25});
+    Question.push_back({"ΣF = |F1 - F2| | If F1 = 12 N, F2 = 8 N (opposite direction), what is ΣF (N)?", 4});
+    Question.push_back({"W = mg | If m = 2 kg, g = 9.8 m/s^2, what is W (N)?", 19.6});
+    Question.push_back({"ΣF = 0 (Constant Velocity) | If m = 4 kg, v = 10 m/s, what is ΣF (N)?", 0});
+    Question.push_back({"ΣF = 0 (Stationary) | If F_push = 100 N, what is f_s (N)?", 100}); 
+    Question.push_back({"T = mg | If m = 3 kg, g = 10 m/s^2, what is T (N)?", 30});
+    Question.push_back({"ΣF = mg (Free fall) | If m = 5 kg, g = 10 m/s^2, what is ΣF (N)?", 50});
 }
 
 bool doPhysicQuestion(){
@@ -107,7 +107,21 @@ void itemPeek(){
     }
 } 
 
+void itemChangeToTen(){
+    if(doPhysicQuestion()){
+        cout << "Select card index to change to 10 (1-)" << PlayerHand.size() << "): ";
+        int idx;
+        cin >> idx;
+        if(idx >= 1 && idx <= PlayerHand.size()){
+            PlayerHand[idx-1].value = 10;
+            PlayerHand[idx-1].rank = "10(Magic)";
+            cout << ">> ACTIVATED: Card Change to 10!\n";
 
+        }else{
+            cout << "Invalid index.\n";
+        }
+    }
+}
 
 void useItemUndo(){
     if(!PlayerHand.empty()){
@@ -133,7 +147,7 @@ void displayHand(string name, const vector<card> &hand, bool hideFirstCard = fal
 int main(){
 
     srand(time(0));
-
+    solveQuestion();
 
     char playAgain = 'y';
     while(playAgain == 'y'){
@@ -143,6 +157,7 @@ int main(){
         DealerHand.clear ();
 
         bool itemUsed = false;
+        
 
         PlayerHand.push_back(drawcard());
         DealerHand.push_back(drawcard());
@@ -150,17 +165,32 @@ int main(){
         DealerHand.push_back(drawcard());
 
         bool playerTurn = true;
+        bool itemPeek = false;
+        bool itemChangeToTen = false;
 
         while(playerTurn){
             cout << "\n------------------------------\n";
             displayHand("Dealer", DealerHand , true );
             displayHand("Player", PlayerHand , false);
+            cout << "\n------------------------------\n";
 
             if(calculateScore(PlayerHand) > 21){
                 cout << "You Busted (score > 21) \n";
-                playerTurn = false;
-                break;
+                cout << "Do You Want to Attempt a Physics Question to UNDO the last Card? (y/n): ";
+                char choice;
+                cin >> choice;
+                if( choice == 'y' && doPhysicQuestion()){
+                    PlayerHand.pop_back();
+                    cout << ">> ACTIVATED: Last Card Removed. Drawing new card...\n";
+                    PlayerHand.push_back(drawcard());
+                    continue;
+                }else{
+                    cout << "Failed to rescue.\n";
+                    playerTurn = false;
+                    break;
+                }
             }
+        
 
             cout << "Action: [1] Hit [2] Stand [3] Use Item\n";
             cout << "Select: ";
@@ -175,12 +205,10 @@ int main(){
                 playerTurn = false;
             }else if(action == 3){
                 if(itemUsed == false){
-                    // ดึงโจทย์ฟิสิกส์มาถาม
                     if(doPhysicQuestion()){
-                        // ถ้าตอบถูก จะขึ้นเมนูไอเทม
                         cout << "\n[ITEM MENU]\n";
-                        cout << "[1] Peek (ดูไพ่ใบแรกที่ซ่อนอยู่ของ Dealer)\n";
-                        cout << "[2] Undo (ลบไพ่ใบล่าสุดในมือตัวเอง)\n";
+                        cout << "[1] Peek (View the Dealer's hidden card)\n";
+                        cout << "[2] Undo (Remove the last card from your hand)\n";
                         cout << "Select Item to use: ";
                         int itemChoice;
                         cin >> itemChoice;
@@ -241,7 +269,5 @@ int main(){
         cout << "\nPlay Again? (y/n): ";
         cin >> playAgain;
     } 
-    
-    
     return 0;
 }
