@@ -5,7 +5,6 @@
 #include <ctime>
 #include <cstdlib>
 #include <random>
-#include <windows.h>
 
 using namespace std;
 
@@ -46,8 +45,11 @@ void creatDeck(){
     
 }
 
-void shuffleDeck(){
-    random_shuffle(deck.begin(), deck.end());
+void shuffleDeck() {
+
+    random_device rd; 
+    mt19937 g(rd());     
+    shuffle(deck.begin(), deck.end(), g);
 }
 
 card drawcard(){
@@ -75,13 +77,13 @@ void solveQuestion(){
     Question.push_back({"F = ma | If m = 5 kg, F = 20 N, what is a (m/s^2)?", 4});
     Question.push_back({"F = ma | If m = 10 kg, a = 3 m/s^2, what is F (N)?", 30});
     Question.push_back({"F = ma | If F = 50 N, a = 5 m/s^2, what is m (kg)?", 10});
-    Question.push_back({"ΣF = F1 + F2 | If F1 = 10 N, F2 = 15 N (same direction), what is ΣF (N)?", 25});
-    Question.push_back({"ΣF = |F1 - F2| | If F1 = 12 N, F2 = 8 N (opposite direction), what is ΣF (N)?", 4});
+    Question.push_back({"F = F1 + F2 | If F1 = 10 N, F2 = 15 N (same direction), what is ΣF (N)?", 25});
+    Question.push_back({"F = |F1 - F2| | If F1 = 12 N, F2 = 8 N (opposite direction), what is ΣF (N)?", 4});
     Question.push_back({"W = mg | If m = 2 kg, g = 9.8 m/s^2, what is W (N)?", 19.6});
-    Question.push_back({"ΣF = 0 (Constant Velocity) | If m = 4 kg, v = 10 m/s, what is ΣF (N)?", 0});
-    Question.push_back({"ΣF = 0 (Stationary) | If F_push = 100 N, what is f_s (N)?", 100}); 
+    Question.push_back({"F = 0 (Constant Velocity) | If m = 4 kg, v = 10 m/s, what is ΣF (N)?", 0});
+    Question.push_back({"F = 0 (Stationary) | If F_push = 100 N, what is f_s (N)?", 100}); 
     Question.push_back({"T = mg | If m = 3 kg, g = 10 m/s^2, what is T (N)?", 30});
-    Question.push_back({"ΣF = mg (Free fall) | If m = 5 kg, g = 10 m/s^2, what is ΣF (N)?", 50});
+    Question.push_back({"F = mg (Free fall) | If m = 5 kg, g = 10 m/s^2, what is ΣF (N)?", 50});
 }
 
 bool doPhysicQuestion(){
@@ -182,7 +184,6 @@ int main(){
                 if( choice == 'y' && doPhysicQuestion()){
                     PlayerHand.pop_back();
                     cout << ">> ACTIVATED: Last Card Removed. Drawing new card...\n";
-                    PlayerHand.push_back(drawcard());
                     continue;
                 }else{
                     cout << "Failed to rescue.\n";
