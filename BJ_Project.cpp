@@ -5,6 +5,9 @@
 #include <ctime>
 #include <cstdlib>
 #include <random>
+#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
+#include <SFML/System.hpp>
 
 using namespace std;
 
@@ -146,129 +149,128 @@ void displayHand(string name, const vector<card> &hand, bool hideFirstCard = fal
 
 }
 
+enum Gamestate{
+    playing,
+    question_item,
+    question_bust,
+    choose_item,
+    gameover
+};
+
+void drawCardGUI(sf::RenderWindow& window, const sf::Font& , const Card& card, float x, float y, bool hidden){
+    sf::RectangleShape rect({100.f, 150y});
+    rect.setPosition({x,y});
+    rect.setOutlineThickness({2.f});
+    rect.setOutlineColor({sf::Color::Black});
+
+    if(!hidden){
+        rect.setFillColor(sf::Color::White);
+        window.draw(rect);
+
+        sf::Text text(font, card.rank + "\n" + card.suit.stbstr(0,1),30);
+        text.setFillColor(card.suit == "Hearts" || card.suit == "Diamonds" ? sf::Color::Red : sf::Color::Black);
+        text.setPosition({x + 10.f, y + 10.f});
+        window.draw(text);
+    }else{
+        rect.setFillColor(sf::Color::Blue);
+        window.draw(rect);
+    }
+}
+
 int main(){
+
+    sf::RenderWindow window(sf::VideoMode({800,600}), "Blackjack Physics ITEM GUI");
+    window.setFramerateLimit(144);
+
+    sf::Font font;
+    if(!font.openFromFile("arial.ttf")){
+        cout << "ERROR: Cannot load arial.ttf" << endl;
+        return -1;
+    }
 
     srand(time(0));
     solveQuestion();
 
-    char playAgain = 'y';
-    while(playAgain == 'y'){
-        creatDeck ();
-        shuffleDeck ();
+    Gamestate currentState = playing;
+    string resulttext = "";
+    string userInput = "";
+    int currentQIdx = 0;
+    bool itemUsedThisRound = false;
+    bool dealerRevealed = false;
+    
+    auto dealInitialCards = [&](){
+
         PlayerHand.clear ();
         DealerHand.clear ();
+        currentState = playing;
+        resulttext = "";
+        itemUsedThisRound = false;
+        dealerRevealed = false;
+        userInput = "";
 
-        bool itemUsed = false;
-        
+        creatDeck ();
+        shuffleDeck ();
 
         PlayerHand.push_back(drawcard());
         DealerHand.push_back(drawcard());
         PlayerHand.push_back(drawcard());
         DealerHand.push_back(drawcard());
 
-        bool playerTurn = true;
-        bool itemPeek = false;
-        bool itemChangeToTen = false;
+        if(calculateScore(PlayerHand) == 21 ){
+            currentState = gameover;
+            resulttext = "Blackjack! You Win!";
 
-        while(playerTurn){
-            cout << "\n------------------------------\n";
-            displayHand("Dealer", DealerHand , true );
-            displayHand("Player", PlayerHand , false);
-            cout << "\n------------------------------\n";
+        }
+    };
 
-            if(calculateScore(PlayerHand) > 21){
-                cout << "You Busted (score > 21) \n";
-                cout << "Do You Want to Attempt a Physics Question to UNDO the last Card? (y/n): ";
-                char choice;
-                cin >> choice;
-                if( choice == 'y' && doPhysicQuestion()){
-                    PlayerHand.pop_back();
-                    cout << ">> ACTIVATED: Last Card Removed. Drawing new card...\n";
-                    continue;
-                }else{
-                    cout << "Failed to rescue.\n";
-                    playerTurn = false;
-                    break;
-                }
+    auto triggerQuestion = [&](Gamestate reason){
+        currentState = reason;
+        userInput = "";
+        currentQIdx = rand() % Question.size();
+    };
+
+    dealInitialCards();
+
+    while(window.isOpen()){
+        while(const optional<sf::Event> event = window.pollEvent()){
+            if(event->is<sf::Event::Closed()){
+                window.close();
             }
-        
+            if(const auto* textEvent = event->getIf<sf::Event::TextEntered()){
+                if(currentState == question_item || currentState == question_bust){
+                    if(textEvent->unicode == '\b' && !userInput.empty()){
+                        userInput.pop_back();
+                    }else if(textEvent->unicode == '\r' || textEvent->unicode == '\n'){
+                        try{
+                            float ans = stof(userInput);
+                            if(abs(ans - Question[currentQIdx].correctAnswer) < 0.1f){
+                                if(currentState == question_item) currentState = choose_item;
+                                else if (currentState == question_bust){
+                                    PlayerHand.pop_back();
+                                    currentState = playing;
+                                }
 
-            cout << "Action: [1] Hit [2] Stand [3] Use Item\n";
-            cout << "Select: ";
-            int action;
-            cin >> action;
+                            }else{
 
-            if(action == 1){
-                cout << "You Hit...\n";
-                PlayerHand.push_back(drawcard());
-            }else if(action == 2){
-                cout << "You Stand.\n";
-                playerTurn = false;
-            }else if(action == 3){
-                if(itemUsed == false){
-                    if(doPhysicQuestion()){
-                        cout << "\n[ITEM MENU]\n";
-                        cout << "[1] Peek (View the Dealer's hidden card)\n";
-                        cout << "[2] Undo (Remove the last card from your hand)\n";
-                        cout << "Select Item to use: ";
-                        int itemChoice;
-                        cin >> itemChoice;
-
-                        if(itemChoice == 1){
-                            cout << ">> ACTIVATED: The Dealer's hidden card is [" << DealerHand[0].rank << "-" << DealerHand[0].suit << "]\n";
-                        } else if(itemChoice == 2){
-                            if(!PlayerHand.empty()){
-                                PlayerHand.pop_back();
-                                cout << ">> ACTIVATED: Deleted your last card!\n";
+                                if(currentState == question_item) currentState = playing;
+                                else if ( currentState == question_bust){
+                                    currentState = gameover;
+                                    resulttext = "Wrong! Bust! Dealer Wins.";
+                                }
                             }
-                        } else {
-                            cout << ">> Invalid choice. Item wasted!\n";
+
+                        }catch(...){
+                            if (currentState == question_item) currentState = playing;
+                            else if (currentState == question_bust){
+                                currentState = gameover;
+                                resulttext = "Bust! Dealer Win.";
+                            }
                         }
-                        itemUsed = true; 
-                    } else {
-                        itemUsed = true; 
-                    }
-                }else{
-                    cout << "[SYSTEM] You already used your item this round!\n";
+
+                    }else if ((textEvent->unicode >= '0' && textEvent->unicode <= '9') || textEvent->unicode == '.' || textEvent->unicode == '-') {
+                        userInput += static_cast<char>(textEvent->unicode);
                 }
             }
         }
-
-
-        int PlayerScore = calculateScore(PlayerHand);
-        int DealerScore = calculateScore(DealerHand);
-
-        if(PlayerScore <= 21){
-            cout << "\n-----Dealer's Turn -----\n";
-            displayHand("Dealer", DealerHand , false);
-
-            while (calculateScore(DealerHand) < 17){
-                cout << "Dealer Hit...\n";
-                DealerHand.push_back(drawcard());
-                DealerScore = calculateScore(DealerHand);
-                displayHand("Dealer", DealerHand , false);
-
-            }
-        }
-
-        cout << "\n===============RESULT===============\n";
-        cout << "Player Score = " << PlayerScore << endl;
-        cout << "Dealer Score = " << DealerScore << endl;
-
-        if(PlayerScore > 21){
-            cout << "Result: You Loss! (Busted)\n";
-        }else if(DealerScore > 21){
-            cout << "Result: You Win! (Dealer Busted)\n";
-        }else if(PlayerScore > DealerScore){
-            cout << "Result: You win!\n";
-        }else if(DealerScore > PlayerScore){
-            cout << "Result: You Loss!\n";
-        }else {
-            cout << "Result: Draw!";
-        }
-
-        cout << "\nPlay Again? (y/n): ";
-        cin >> playAgain;
-    } 
-    return 0;
-}
+        if(const auto* mousePressed)
+    }
