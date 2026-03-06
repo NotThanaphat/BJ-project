@@ -150,14 +150,14 @@ void displayHand(string name, const vector<card> &hand, bool hideFirstCard = fal
 }
 
 enum Gamestate{
-    playing,
-    question_item,
-    question_bust,
-    choose_item,
-    gameover
+    PLAYING,
+    QUESTION_ITEM,
+    QUESTION_BUST,
+    CHOOSE_ITEM,
+    GAMEOVER
 };
 
-void drawCardGUI(sf::RenderWindow& window, const sf::Font& , const card& card, float x, float y, bool hidden){
+void drawCardGUI(sf::RenderWindow& window, const sf::Font& font, const card& card, float x, float y, bool hidden){
     sf::RectangleShape rect({100.f, 150.f});
     rect.setPosition({x,y});
     rect.setOutlineThickness({2.f});
@@ -177,53 +177,50 @@ void drawCardGUI(sf::RenderWindow& window, const sf::Font& , const card& card, f
     }
 }
 
-int main(){
-
-    sf::RenderWindow window(sf::VideoMode({800,600}), "Blackjack Physics ITEM GUI");
-    window.setFramerateLimit(144);
+int main() {
+    sf::RenderWindow window(sf::VideoMode({800, 600}), "Blackjack Physics GUI");
+    window.setFramerateLimit(60);
 
     sf::Font font;
-    if(!font.openFromFile("arial.ttf")){
+    if (!font.openFromFile("arial.ttf")) {
         cout << "ERROR: Cannot load arial.ttf" << endl;
         return -1;
     }
 
     srand(time(0));
-    solveQuestion();
+    solveQuestion(); 
 
-    Gamestate currentState = playing;
-    string resulttext = "";
+    Gamestate currentState = PLAYING;
+    string resultText = "";
     string userInput = "";
     int currentQIdx = 0;
     bool itemUsedThisRound = false;
     bool dealerRevealed = false;
-    
-    auto dealInitialCards = [&](){
 
-        PlayerHand.clear ();
-        DealerHand.clear ();
-        currentState = playing;
-        resulttext = "";
+    auto dealInitialCards = [&]() {
+        PlayerHand.clear();
+        DealerHand.clear();
+        currentState = PLAYING;
+        resultText = "";
         itemUsedThisRound = false;
         dealerRevealed = false;
         userInput = "";
-
-        creatDeck ();
-        shuffleDeck ();
-
+        
+        creatDeck();
+        shuffleDeck();
+        
         PlayerHand.push_back(drawcard());
         DealerHand.push_back(drawcard());
         PlayerHand.push_back(drawcard());
         DealerHand.push_back(drawcard());
-
-        if(calculateScore(PlayerHand) == 21 ){
-            currentState = gameover;
-            resulttext = "Blackjack! You Win!";
-
+        
+        if (calculateScore(PlayerHand) == 21) {
+            currentState = GAMEOVER;
+            resultText = "Blackjack! You Win!";
         }
     };
 
-    auto triggerQuestion = [&](Gamestate reason){
+    auto triggerQuestion = [&](Gamestate reason) {
         currentState = reason;
         userInput = "";
         currentQIdx = rand() % Question.size();
@@ -231,101 +228,101 @@ int main(){
 
     dealInitialCards();
 
-    while(window.isOpen()){
-        while(const optional<sf::Event> event = window.pollEvent()){
-            if(event->is<sf::Event::Closed()){
+    while (window.isOpen()) {
+        while (const optional<sf::Event> event = window.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
                 window.close();
             }
-            if(const auto* textEvent = event->getIf<sf::Event::TextEntered()){
-                if(currentState == question_item || currentState == question_bust){
-                    if(textEvent->unicode == '\b' && !userInput.empty()){
-                        userInput.pop_back();
-                    }else if(textEvent->unicode == '\r' || textEvent->unicode == '\n'){
-                        try{
+            
+            if (const auto* textEvent = event->getIf<sf::Event::TextEntered>()) {
+                if (currentState == QUESTION_ITEM || currentState == QUESTION_BUST) {
+                    if (textEvent->unicode == '\b' && !userInput.empty()) { 
+                        userInput.pop_back(); 
+                    } else if (textEvent->unicode == '\r' || textEvent->unicode == '\n') { 
+                        try {
                             float ans = stof(userInput);
-                            if(abs(ans - Question[currentQIdx].correctAnswer) < 0.1f){
-                                if(currentState == question_item) currentState = choose_item;
-                                else if (currentState == question_bust){
-                                    PlayerHand.pop_back();
-                                    currentState = playing;
+                            if (abs(ans - Question[currentQIdx].correctAnswer) < 0.1f) {
+                                if (currentState == QUESTION_ITEM) currentState = CHOOSE_ITEM;
+                                else if (currentState == QUESTION_BUST) {
+                                    PlayerHand.pop_back(); 
+                                    currentState = PLAYING;
                                 }
-
-                            }else{
-
-                                if(currentState == question_item) currentState = playing;
-                                else if ( currentState == question_bust){
-                                    currentState = gameover;
-                                    resulttext = "Wrong! Bust! Dealer Wins.";
+                            } else {
+                                if (currentState == QUESTION_ITEM) currentState = PLAYING; 
+                                else if (currentState == QUESTION_BUST) {
+                                    currentState = GAMEOVER;
+                                    resultText = "Wrong! Bust! Dealer Wins.";
                                 }
                             }
-
-                        }catch(...){
-                            if (currentState == question_item) currentState = playing;
-                            else if (currentState == question_bust){
-                                currentState = gameover;
-                                resulttext = "Bust! Dealer Win.";
+                        } catch (...) {
+                            if (currentState == QUESTION_ITEM) currentState = PLAYING;
+                            else if (currentState == QUESTION_BUST) {
+                                currentState = GAMEOVER;
+                                resultText = "Bust! Dealer Wins.";
                             }
                         }
-
-                    }else if ((textEvent->unicode >= '0' && textEvent->unicode <= '9') || textEvent->unicode == '.' || textEvent->unicode == '-') {
-                        userInput += static_cast<char>(textEvent->unicode);
+                    } else if ((textEvent->unicode >= '0' && textEvent->unicode <= '9') || textEvent->unicode == '.' || textEvent->unicode == '-') {
+                        userInput += static_cast<char>(textEvent->unicode); 
+                    }
                 }
             }
-        }
-        if(const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed()){
-            if(mousePressed->button == sf::Mouse::Button::Left){
-                float mouseX = (float)mousePressed->position.x;
-                float mouseY = (float)mousePressed->position.y;
 
-                sf::FloatRect hitBounds({50.f, 500.f}, {120.f, 50.f});
-                sf::FloatRect standBounds({170.f, 500.f}, {120.f, 50.f});
-                sf::FloatRect itemBounds({310.f, 500.f}, {120.f, 50.f});
-                sf::FloatRect playBounds({500.f, 500.f}, {120.f, 50.f});
-                sf::FloatRect peekunds({250.f, 300.f}, {120.f, 50.f});
-                sf::FloatRect undoBounds({400.f, 300.f}, {120.f, 50.f});
+            if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>()) {
+                if (mousePressed->button == sf::Mouse::Button::Left) {
+                    float mouseX = (float)mousePressed->position.x;
+                    float mouseY = (float)mousePressed->position.y;
 
-                if(currentState == playing){
-                    if(hitBounds.contains({mouseX,mouseY})){
-                        PlayerHand.push_back(drawcard()){
-                            if(calculateScore(PlayerHand) > 21 ){
-                                if(!itemUsedThisRound){
-                                    triggerQuestion(question_bust);
+                    sf::FloatRect hitBounds({50.f, 500.f}, {100.f, 50.f});
+                    sf::FloatRect standBounds({170.f, 500.f}, {120.f, 50.f});
+                    sf::FloatRect itemBounds({310.f, 500.f}, {120.f, 50.f});
+                    sf::FloatRect playBounds({500.f, 500.f}, {150.f, 50.f});
+                    
+                    sf::FloatRect peekBounds({250.f, 300.f}, {120.f, 50.f});
+                    sf::FloatRect undoBounds({400.f, 300.f}, {120.f, 50.f});
+
+                    if (currentState == PLAYING) {
+                        if (hitBounds.contains({mouseX, mouseY})) {
+                            PlayerHand.push_back(drawcard());
+                            if (calculateScore(PlayerHand) > 21) {
+                                if (!itemUsedThisRound) {
+                                    triggerQuestion(QUESTION_BUST); 
                                     itemUsedThisRound = true;
-                                }else{
-                                    currentState = gameover;
-                                    resulttext = "Bust! Dealer Wins.";
+                                } else {
+                                    currentState = GAMEOVER;
+                                    resultText = "Bust! Dealer Wins.";
                                 }
                             }
                         }
-                        else if (standBounds.contains({mouseX,mouseY})){
-                            currentState = gameover;
+                        else if (standBounds.contains({mouseX, mouseY})) {
+                            currentState = GAMEOVER;
                             dealerRevealed = true;
-                            while (calculateScore(DealerHand) < 17){
+                            while (calculateScore(DealerHand) < 17) {
                                 DealerHand.push_back(drawcard());
                             }
-
+                            
                             int pScore = calculateScore(PlayerHand);
                             int dScore = calculateScore(DealerHand);
-
-                            if(dScore > 21 || pScore > dScore)  resulttext = "You Win!";
-                            else if(pScore == dScore) resulttext = "Push (Tie)!";
-                            else resulttext = "Dealer Wins!";
-
+                            
+                            if (dScore > 21 || pScore > dScore) resultText = "You Win!";
+                            else if (pScore == dScore) resultText = "Push (Tie)!";
+                            else resultText = "Dealer Wins!";
                         }
-                        else if (itemBounds.contains({mouseX,mouseY}) && !itemUsedThisRound){
-                            triggerQuestion(question_item);
+                        else if (itemBounds.contains({mouseX, mouseY}) && !itemUsedThisRound) {
+                            triggerQuestion(QUESTION_ITEM);
                             itemUsedThisRound = true;
                         }
-                    }
-                    else if(currentState == choose_item){
-                        if(peekBounds.contain({mouseX,mouseY})){
-                            if(PlayerHand.size() > 2) PlayerHand.pop_back;
-                            currentState = playing;
-
+                    } 
+                    else if (currentState == CHOOSE_ITEM) {
+                        if (peekBounds.contains({mouseX, mouseY})) {
+                            dealerRevealed = true; 
+                            currentState = PLAYING;
+                        } else if (undoBounds.contains({mouseX, mouseY})) {
+                            if (PlayerHand.size() > 2) PlayerHand.pop_back(); 
+                            currentState = PLAYING;
                         }
                     }
-                    else if (currentState == gameover && playBounds.contains({mouseX,mouseY})){
-                        dealInitialCards();
+                    else if (currentState == GAMEOVER && playBounds.contains({mouseX, mouseY})) {
+                        dealInitialCards(); 
                     }
                 }
             }
@@ -336,40 +333,44 @@ int main(){
         sf::Text tDealer(font, "Dealer's Hand", 24);
         tDealer.setPosition({50.f, 20.f});
         window.draw(tDealer);
-        for(size_t i = 0; i < DealerHand.size(); i++){
-            bool hidden = (currentState != gameover && !dealerRevealed && i == 1);
-            drawCardGUI(window, font, DealerHand[i], 50.f = i * 80.f, 60.f, hidden);
+        for (size_t i = 0; i < DealerHand.size(); ++i) {
+            bool hidden = (currentState != GAMEOVER && !dealerRevealed && i == 1); 
+            drawCardGUI(window, font, DealerHand[i], 50.f + i * 80.f, 60.f, hidden);
         }
 
-        sf::Text tPlayer(font, "Player's Hand (Score: )" + to_string(calculateScore(PlayerHand)) + ")", 24);
+        sf::Text tPlayer(font, "Player's Hand (Score: " + to_string(calculateScore(PlayerHand)) + ")", 24);
         tPlayer.setPosition({50.f, 220.f});
         window.draw(tPlayer);
-        for(size_t i = 0; i < PlayerHand[i], 50.f + i * 80.f, 260.f, false);
+        for (size_t i = 0; i < PlayerHand.size(); ++i) {
+            drawCardGUI(window, font, PlayerHand[i], 50.f + i * 80.f, 260.f, false);
         }
+
         sf::RectangleShape hitBtn({100.f, 50.f});
-        hitBtn.setPosition ({50.f, 500.f});
-        hitBtn.setFillColor(currentState != playing ? sf::Color(100,100,100) : sf::Color(20,21,23));
+        hitBtn.setPosition({50.f, 500.f});
+        hitBtn.setFillColor(currentState != PLAYING ? sf::Color(100, 100, 100) : sf::Color::Blue);
         window.draw(hitBtn);
         sf::Text tHit(font, "HIT", 24); tHit.setPosition({75.f, 510.f}); window.draw(tHit);
 
         sf::RectangleShape standBtn({120.f, 50.f});
-        standBtn.setPosition ({170.f, 500.f});
-        standBtn.setFillColor(currentState != playing ? sf::Color(100,100,100) : sf::Color::Red);
-        sf::Text tStand(font, "STAND", 24); tHit.setPosition({190.f, 510.f}); window.draw(tStand);
+        standBtn.setPosition({170.f, 500.f});
+        standBtn.setFillColor(currentState != PLAYING ? sf::Color(100, 100, 100) : sf::Color::Red);
+        window.draw(standBtn);
+        sf::Text tStand(font, "STAND", 24); tStand.setPosition({190.f, 510.f}); window.draw(tStand);
 
         sf::RectangleShape itemBtn({120.f, 50.f});
-        itemBtn.setPosition ({310.f, 500.f});
-        itemBtn.setFillColor(currentState != playing ? || itemUsedThisRound ? sf::Color(100,100,100) : sf::Color::Magenta);
-        sf::Text tItem(font, "ITEM", 24); tHit.setPosition({340.f, 510.f}); window.draw(tItem);
+        itemBtn.setPosition({310.f, 500.f});
+        itemBtn.setFillColor((currentState != PLAYING || itemUsedThisRound) ? sf::Color(100, 100, 100) : sf::Color::Magenta);
+        window.draw(itemBtn);
+        sf::Text tItem(font, "ITEM", 24); tItem.setPosition({340.f, 510.f}); window.draw(tItem);
 
-        if(currentState == question_item || currentState == question_bust){
+        if (currentState == QUESTION_ITEM || currentState == QUESTION_BUST) {
             sf::RectangleShape box({380.f, 150.f});
-            box.setPosition({400.f, 20.f});
+            box.setPosition({400.f, 20.f}); 
             box.setFillColor(sf::Color(0, 0, 0, 200));
             box.setOutlineThickness(2);
             window.draw(box);
 
-            string title = (currentState == question_bust) ? "BUST PREVENT! ANSWER TO UNDO: " : "PHYSICS CHALLANGE FOR ITEM!";
+            string title = (currentState == QUESTION_BUST) ? "BUST PREVENT! Answer to undo:" : "PHYSICS CHALLENGE for ITEM!";
             sf::Text tTitle(font, title, 16);
             tTitle.setFillColor(sf::Color::Yellow);
             tTitle.setPosition({410.f, 30.f}); 
@@ -379,17 +380,13 @@ int main(){
             tQ.setPosition({410.f, 70.f}); 
             window.draw(tQ);
 
-            sf::Text tQ(font, Question[currentQIdx].question, 14);
-            tQ.setPosition({410.f, 70.f}); 
-            window.draw(tQ);
-
             sf::Text tAns(font, "Your Answer: " + userInput + "_ (Enter)", 16);
             tAns.setPosition({410.f, 115.f}); 
             tAns.setFillColor(sf::Color::Cyan);
-            window.draw(tAns)
-
+            window.draw(tAns);
         }
-        if(currentState == choose_item){
+
+        if (currentState == CHOOSE_ITEM) {
             sf::RectangleShape box({400.f, 150.f});
             box.setPosition({200.f, 200.f});
             box.setFillColor(sf::Color(0, 0, 0, 220));
@@ -405,7 +402,8 @@ int main(){
             sf::RectangleShape btnUndo({120.f, 50.f}); btnUndo.setPosition({400.f, 280.f}); btnUndo.setFillColor(sf::Color::Cyan); window.draw(btnUndo);
             sf::Text tU(font, "UNDO", 20); tU.setFillColor(sf::Color::Black); tU.setPosition({430.f, 290.f}); window.draw(tU);
         }
-        if (currentState == gameover) {
+
+        if (currentState == GAMEOVER) {
             sf::RectangleShape playBtn({150.f, 50.f});
             playBtn.setPosition({500.f, 500.f});
             playBtn.setFillColor(sf::Color::Yellow);
@@ -415,14 +413,14 @@ int main(){
             tPlay.setPosition({535.f, 510.f});
             window.draw(tPlay);
 
-            sf::Text tResult(font, resulttext, 36);
+            sf::Text tResult(font, resultText, 36);
             tResult.setFillColor(sf::Color::White);
             tResult.setPosition({400.f, 400.f});
             window.draw(tResult);
         }
-        window.display();
 
+        window.display();
     }
+
     return 0;
 }
-    
