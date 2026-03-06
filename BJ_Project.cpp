@@ -272,5 +272,71 @@ int main(){
                 }
             }
         }
-        if(const auto* mousePressed)
+        if(const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed()){
+            if(mousePressed->button == sf::Mouse::Button::Left){
+                float mouseX = (float)mousePressed->position.x;
+                float mouseY = (float)mousePressed->position.y;
+
+                sf::FloatRect hitBounds({50.f, 500.f}, {120.f, 50.f});
+                sf::FloatRect standBounds({170.f, 500.f}, {120.f, 50.f});
+                sf::FloatRect itemBounds({310.f, 500.f}, {120.f, 50.f});
+                sf::FloatRect playBounds({500.f, 500.f}, {120.f, 50.f});
+                sf::FloatRect peekunds({250.f, 300.f}, {120.f, 50.f});
+                sf::FloatRect undoBounds({400.f, 300.f}, {120.f, 50.f});
+
+                if(currentState == playing){
+                    if(hitBounds.contains({mouseX,mouseY})){
+                        PlayerHand.push_back(drawcard()){
+                            if(calculateScore(PlayerHand) > 21 ){
+                                if(!itemUsedThisRound){
+                                    triggerQuestion(question_bust);
+                                    itemUsedThisRound = true;
+                                }else{
+                                    currentState = gameover;
+                                    resulttext = "Bust! Dealer Wins.";
+                                }
+                            }
+                        }
+                        else if (standBounds.contains({mouseX,mouseY})){
+                            currentState = gameover;
+                            dealerRevealed = true;
+                            while (calculateScore(DealerHand) < 17){
+                                DealerHand.push_back(drawcard());
+                            }
+
+                            int pScore = calculateScore(PlayerHand);
+                            int dScore = calculateScore(DealerHand);
+
+                            if(dScore > 21 || pScore > dScore)  resulttext = "You Win!";
+                            else if(pScore == dScore) resulttext = "Push (Tie)!";
+                            else resulttext = "Dealer Wins!";
+
+                        }
+                        else if (itemBounds.contains({mouseX,mouseY}) && !itemUsedThisRound){
+                            triggerQuestion(question_item);
+                            itemUsedThisRound = true;
+                        }
+                    }
+                    else if(currentState == choose_item){
+                        if(peekBounds.contain({mouseX,mouseY})){
+                            if(PlayerHand.size() > 2) PlayerHand.pop_back;
+                            currentState = playing;
+
+                        }
+                    }
+                    else if (currentState == gameover && playBounds.contains({mouseX,mouseY})){
+                        dealInitialCards();
+                    }
+                }
+            }
+        }
+
+        window.clear(sf::Color(34, 139, 34));
+
+        sf::Text tDealer(font, "Dealer's Hand", 24);
+        tDealer.setPosition({50.f, 20.f});
+        window.draw(tDealer);
+        for(size_t i = 0; i < DealerHand.size(); i++){
+            bool hidden = (currentState != gameover && !dealerRevealed && i == 1);
+        }
     }
