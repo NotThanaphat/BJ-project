@@ -157,8 +157,8 @@ enum Gamestate{
     gameover
 };
 
-void drawCardGUI(sf::RenderWindow& window, const sf::Font& , const Card& card, float x, float y, bool hidden){
-    sf::RectangleShape rect({100.f, 150y});
+void drawCardGUI(sf::RenderWindow& window, const sf::Font& , const card& card, float x, float y, bool hidden){
+    sf::RectangleShape rect({100.f, 150.f});
     rect.setPosition({x,y});
     rect.setOutlineThickness({2.f});
     rect.setOutlineColor({sf::Color::Black});
@@ -167,7 +167,7 @@ void drawCardGUI(sf::RenderWindow& window, const sf::Font& , const Card& card, f
         rect.setFillColor(sf::Color::White);
         window.draw(rect);
 
-        sf::Text text(font, card.rank + "\n" + card.suit.stbstr(0,1),30);
+        sf::Text text(font, card.rank + "\n" + card.suit.substr(0,1),30);
         text.setFillColor(card.suit == "Hearts" || card.suit == "Diamonds" ? sf::Color::Red : sf::Color::Black);
         text.setPosition({x + 10.f, y + 10.f});
         window.draw(text);
@@ -338,5 +338,91 @@ int main(){
         window.draw(tDealer);
         for(size_t i = 0; i < DealerHand.size(); i++){
             bool hidden = (currentState != gameover && !dealerRevealed && i == 1);
+            drawCardGUI(window, font, DealerHand[i], 50.f = i * 80.f, 60.f, hidden);
         }
+
+        sf::Text tPlayer(font, "Player's Hand (Score: )" + to_string(calculateScore(PlayerHand)) + ")", 24);
+        tPlayer.setPosition({50.f, 220.f});
+        window.draw(tPlayer);
+        for(size_t i = 0; i < PlayerHand[i], 50.f + i * 80.f, 260.f, false);
+        }
+        sf::RectangleShape hitBtn({100.f, 50.f});
+        hitBtn.setPosition ({50.f, 500.f});
+        hitBtn.setFillColor(currentState != playing ? sf::Color(100,100,100) : sf::Color(20,21,23));
+        window.draw(hitBtn);
+        sf::Text tHit(font, "HIT", 24); tHit.setPosition({75.f, 510.f}); window.draw(tHit);
+
+        sf::RectangleShape standBtn({120.f, 50.f});
+        standBtn.setPosition ({170.f, 500.f});
+        standBtn.setFillColor(currentState != playing ? sf::Color(100,100,100) : sf::Color::Red);
+        sf::Text tStand(font, "STAND", 24); tHit.setPosition({190.f, 510.f}); window.draw(tStand);
+
+        sf::RectangleShape itemBtn({120.f, 50.f});
+        itemBtn.setPosition ({310.f, 500.f});
+        itemBtn.setFillColor(currentState != playing ? || itemUsedThisRound ? sf::Color(100,100,100) : sf::Color::Magenta);
+        sf::Text tItem(font, "ITEM", 24); tHit.setPosition({340.f, 510.f}); window.draw(tItem);
+
+        if(currentState == question_item || currentState == question_bust){
+            sf::RectangleShape box({380.f, 150.f});
+            box.setPosition({400.f, 20.f});
+            box.setFillColor(sf::Color(0, 0, 0, 200));
+            box.setOutlineThickness(2);
+            window.draw(box);
+
+            string title = (currentState == question_bust) ? "BUST PREVENT! ANSWER TO UNDO: " : "PHYSICS CHALLANGE FOR ITEM!";
+            sf::Text tTitle(font, title, 16);
+            tTitle.setFillColor(sf::Color::Yellow);
+            tTitle.setPosition({410.f, 30.f}); 
+            window.draw(tTitle);
+
+            sf::Text tQ(font, Question[currentQIdx].question, 14);
+            tQ.setPosition({410.f, 70.f}); 
+            window.draw(tQ);
+
+            sf::Text tQ(font, Question[currentQIdx].question, 14);
+            tQ.setPosition({410.f, 70.f}); 
+            window.draw(tQ);
+
+            sf::Text tAns(font, "Your Answer: " + userInput + "_ (Enter)", 16);
+            tAns.setPosition({410.f, 115.f}); 
+            tAns.setFillColor(sf::Color::Cyan);
+            window.draw(tAns)
+
+        }
+        if(currentState == choose_item){
+            sf::RectangleShape box({400.f, 150.f});
+            box.setPosition({200.f, 200.f});
+            box.setFillColor(sf::Color(0, 0, 0, 220));
+            window.draw(box);
+
+            sf::Text msg(font, "Correct! Choose your Item:", 20);
+            msg.setPosition({220.f, 220.f});
+            window.draw(msg);
+
+            sf::RectangleShape btnPeek({120.f, 50.f}); btnPeek.setPosition({250.f, 280.f}); btnPeek.setFillColor(sf::Color::Yellow); window.draw(btnPeek);
+            sf::Text tP(font, "PEEK", 20); tP.setFillColor(sf::Color::Black); tP.setPosition({280.f, 290.f}); window.draw(tP);
+
+            sf::RectangleShape btnUndo({120.f, 50.f}); btnUndo.setPosition({400.f, 280.f}); btnUndo.setFillColor(sf::Color::Cyan); window.draw(btnUndo);
+            sf::Text tU(font, "UNDO", 20); tU.setFillColor(sf::Color::Black); tU.setPosition({430.f, 290.f}); window.draw(tU);
+        }
+        if (currentState == gameover) {
+            sf::RectangleShape playBtn({150.f, 50.f});
+            playBtn.setPosition({500.f, 500.f});
+            playBtn.setFillColor(sf::Color::Yellow);
+            window.draw(playBtn);
+            sf::Text tPlay(font, "AGAIN", 24);
+            tPlay.setFillColor(sf::Color::Black);
+            tPlay.setPosition({535.f, 510.f});
+            window.draw(tPlay);
+
+            sf::Text tResult(font, resulttext, 36);
+            tResult.setFillColor(sf::Color::White);
+            tResult.setPosition({400.f, 400.f});
+            window.draw(tResult);
+        }
+        window.display();
+
     }
+    return 0;
+}
+    
