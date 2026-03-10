@@ -30,7 +30,7 @@ vector<card> DealerHand;
 vector<PhysicalQuestion> Question;
 
 void creatDeck(){
-    string suits[] = {"clubs" , "diamons" , "hearts" , "spades"};
+    string suits[] = {"Clubs" , "Diamonds" , "Hearts" , "Spades"};
     string ranks[] = {"2" , "3" , "4" , "5" , "6" , "7" , "8" , "9" , "10" , "J" , "Q" , "K" , "A"};
     int values[] = {2,3,4,5,6,7,8,9,10,10,10,10,11};
     
@@ -80,13 +80,13 @@ void solveQuestion(){
     Question.push_back({"F = ma | If m = 5 kg, F = 20 N, what is a (m/s^2)?", 4});
     Question.push_back({"F = ma | If m = 10 kg, a = 3 m/s^2, what is F (N)?", 30});
     Question.push_back({"F = ma | If F = 50 N, a = 5 m/s^2, what is m (kg)?", 10});
-    Question.push_back({"F = F1 + F2 | If F1 = 10 N, F2 = 15 N (same direction), what is ΣF (N)?", 25});
-    Question.push_back({"F = |F1 - F2| | If F1 = 12 N, F2 = 8 N (opposite direction), what is ΣF (N)?", 4});
+    Question.push_back({"F = F1 + F2 | If F1 = 10 N, F2 = 15 N , what is F (N)?", 25});
+    Question.push_back({"F = |F1 - F2| | If F1 = 12 N, F2 = 8 N , what is F (N)?", 4});
     Question.push_back({"W = mg | If m = 2 kg, g = 9.8 m/s^2, what is W (N)?", 19.6});
-    Question.push_back({"F = 0 (Constant Velocity) | If m = 4 kg, v = 10 m/s, what is ΣF (N)?", 0});
-    Question.push_back({"F = 0 (Stationary) | If F_push = 100 N, what is f_s (N)?", 100}); 
+    Question.push_back({"F = 0 | If m = 4 kg, v = 10 m/s, what is F (N)?", 0});
+    Question.push_back({"F = 0 | If F_push = 100 N, what is f_s (N)?", 100}); 
     Question.push_back({"T = mg | If m = 3 kg, g = 10 m/s^2, what is T (N)?", 30});
-    Question.push_back({"F = mg (Free fall) | If m = 5 kg, g = 10 m/s^2, what is ΣF (N)?", 50});
+    Question.push_back({"F = mg | If m = 5 kg, g = 10 m/s^2, what is F (N)?", 50});
 }
 
 bool doPhysicQuestion(){
@@ -172,13 +172,13 @@ void drawCardGUI(sf::RenderWindow& window, const sf::Font& font, const card& car
         text.setPosition({x + 10.f, y + 10.f});
         window.draw(text);
     }else{
-        rect.setFillColor(sf::Color::Blue);
+        rect.setFillColor(sf::Color::Blue); 
         window.draw(rect);
     }
 }
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode({800, 600}), "Blackjack Physics GUI");
+    sf::RenderWindow window(sf::VideoMode({800 , 600}), "Blackjack Physics GUI" ,  sf::Style::Titlebar | sf::Style::Close );
     window.setFramerateLimit(60);
 
     sf::Font font;
@@ -373,22 +373,22 @@ int main() {
             string title = (currentState == QUESTION_BUST) ? "BUST PREVENT! Answer to undo:" : "PHYSICS CHALLENGE for ITEM!";
             sf::Text tTitle(font, title, 16);
             tTitle.setFillColor(sf::Color::Yellow);
-            tTitle.setPosition({410.f, 30.f}); 
+            tTitle.setPosition({405.f, 30.f}); 
             window.draw(tTitle);
 
             sf::Text tQ(font, Question[currentQIdx].question, 14);
-            tQ.setPosition({410.f, 70.f}); 
+            tQ.setPosition({405.f, 70.f}); 
             window.draw(tQ);
 
             sf::Text tAns(font, "Your Answer: " + userInput + "_ (Enter)", 16);
-            tAns.setPosition({410.f, 115.f}); 
+            tAns.setPosition({405.f, 115.f}); 
             tAns.setFillColor(sf::Color::Cyan);
             window.draw(tAns);
         }
 
         if (currentState == CHOOSE_ITEM) {
-            sf::RectangleShape box({400.f, 150.f});
-            box.setPosition({200.f, 200.f});
+            sf::RectangleShape box({500.f, 150.f});
+            box.setPosition({150.f, 200.f});
             box.setFillColor(sf::Color(0, 0, 0, 220));
             window.draw(box);
 
@@ -415,7 +415,7 @@ int main() {
 
             sf::Text tResult(font, resultText, 36);
             tResult.setFillColor(sf::Color::White);
-            tResult.setPosition({400.f, 400.f});
+            tResult.setPosition({250.f, 450.f});
             window.draw(tResult);
         }
 
